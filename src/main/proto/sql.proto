@@ -1,0 +1,63 @@
+syntax = "proto2";
+
+package ru.acapella.db.grpc;
+
+option java_package = "ru.acapella.db.grpc";
+option java_multiple_files = true;
+
+message SqlVariantPb {
+    oneof value {
+        bool vBoolean = 1;
+        int32 vInt = 2;
+        int64 vLong = 3;
+        float vFloat = 4;
+        double vDouble = 5;
+        string vString = 6;
+        bytes vBytes = 7;
+        string vDecimal = 8;
+    }
+}
+
+message SqlRowPb {
+    repeated SqlVariantPb fields = 1;
+}
+
+message SqlQueryMessagePb {
+    oneof messages {
+        SqlQueryRequestPb request = 1;
+        SqlQueryFetchPb fetch = 2;
+    }
+}
+
+message SqlQueryRequestPb {
+    optional bytes transaction = 1;
+    required string sql = 2;
+    optional uint32 fetchSize = 3;
+    repeated SqlVariantPb arguments = 4;
+}
+
+message SqlQueryFetchPb {
+    optional uint32 fetchSize = 1;
+    optional bool close = 2;
+}
+
+message SqlResultSetPb {
+    repeated SqlRowPb rows = 1;
+    required bool hasMore = 2;
+}
+
+message SqlExecuteRequestPb {
+    optional bytes transaction = 1;
+    required string sql = 2;
+    repeated SqlVariantPb arguments = 3;
+}
+
+message SqlExecuteResponsePb {
+    required uint64 rowsCount = 1;
+}
+
+service Sql {
+    rpc QueryStream(stream SqlQueryMessagePb) returns (stream SqlResultSetPb);
+    rpc Query(SqlQueryRequestPb) returns (SqlResultSetPb);
+    rpc Execute(SqlExecuteRequestPb) returns (SqlExecuteResponsePb);
+}

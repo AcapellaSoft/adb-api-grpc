@@ -1,0 +1,52 @@
+syntax = "proto2";
+
+package ru.acapella.db.grpc;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "ru.acapella.db.grpc";
+option java_multiple_files = true;
+
+message KvEntryPb {
+    required bytes key = 1;
+    required bytes value = 2;
+}
+
+message KvGetRequestPb {
+    required bytes key = 1;
+    required bytes transaction = 2;
+}
+
+message KvGetResponsePb {
+    required bytes value = 1;
+}
+
+message KvGetRangeRequestPb {
+    required bytes transaction = 1;
+    optional bytes fromKey = 2;
+    optional bytes toKey = 3;
+    optional uint32 limit = 4;
+    optional bool reverse = 5;
+}
+
+message KvGetRangeResponsePb {
+    repeated KvEntryPb entries = 1;
+}
+
+message KvPutRequestPb {
+    required bytes key = 1;
+    required bytes value = 2;
+    required bytes transaction = 3;
+}
+
+message KvPutBatchRequestPb {
+    required bytes transaction = 1;
+    repeated KvEntryPb entries = 2;
+}
+
+service KeyValue {
+    rpc Get (KvGetRequestPb) returns (KvGetResponsePb);
+    rpc GetRange(KvGetRangeRequestPb) returns (KvGetRangeResponsePb);
+    rpc Put (KvPutRequestPb) returns (google.protobuf.Empty);
+    rpc PutBatch (KvPutBatchRequestPb) returns (google.protobuf.Empty);
+}
