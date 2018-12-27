@@ -8,18 +8,44 @@ option java_multiple_files = true;
 message SqlVariantPb {
     oneof value {
         bool vBoolean = 1;
-        int32 vInt = 2;
-        int64 vLong = 3;
-        float vFloat = 4;
-        double vDouble = 5;
-        string vString = 6;
-        bytes vBytes = 7;
-        string vDecimal = 8;
+        int32 vByte = 2;
+        int32 vShort = 3;
+        int32 vInt = 4;
+        int64 vLong = 5;
+        float vFloat = 6;
+        double vDouble = 7;
+        string vString = 8;
+        bytes vBytes = 9;
+        string vDecimal = 10;
+        int64 vDate = 11;
+        int64 vTime = 12;
+        int64 vTimestamp = 13;
     }
 }
 
 message SqlRowPb {
     repeated SqlVariantPb fields = 1;
+}
+
+message SqlPrepareRequestPb {
+    required string sql = 1;
+}
+
+message SqlParameterMetaPb {
+    required int32 type = 2;
+}
+
+message SqlColumnMetaPb {
+    required string schema = 1;
+    required string table = 2;
+    required string name = 3;
+    required string label = 4;
+    required int32 type = 5;
+}
+
+message SqlPrepareResponsePb {
+    repeated SqlParameterMetaPb parameters = 1;
+    repeated SqlColumnMetaPb columns = 2;
 }
 
 message SqlQueryMessagePb {
@@ -33,7 +59,7 @@ message SqlQueryRequestPb {
     optional bytes transaction = 1;
     required string sql = 2;
     optional uint32 fetchSize = 3;
-    repeated SqlVariantPb arguments = 4;
+    repeated SqlVariantPb parameters = 4;
 }
 
 message SqlQueryFetchPb {
@@ -49,7 +75,7 @@ message SqlResultSetPb {
 message SqlExecuteRequestPb {
     optional bytes transaction = 1;
     required string sql = 2;
-    repeated SqlVariantPb arguments = 3;
+    repeated SqlVariantPb parameters = 3;
 }
 
 message SqlExecuteResponsePb {
@@ -57,6 +83,7 @@ message SqlExecuteResponsePb {
 }
 
 service Sql {
+    rpc Prepare(SqlPrepareRequestPb) returns (SqlPrepareResponsePb);
     rpc QueryStream(stream SqlQueryMessagePb) returns (stream SqlResultSetPb);
     rpc Query(SqlQueryRequestPb) returns (SqlResultSetPb);
     rpc Execute(SqlExecuteRequestPb) returns (SqlExecuteResponsePb);
