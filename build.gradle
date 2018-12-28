@@ -34,7 +34,7 @@ def getVersionName() {
     }
     def output = stdout.toString().trim()
     output = output.replaceFirst(/([\d.]+)/, '$1')
-    output = output.replaceFirst(/([\d.]+)-(\d+)-.*/, '$1.$2')
+    output = output.replaceFirst(/([\d.]+)-(\d+)-.*/, '$1-SNAPSHOT')
     return output
 }
 
