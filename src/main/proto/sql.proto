@@ -2,6 +2,8 @@ syntax = "proto2";
 
 package ru.acapella.db.grpc;
 
+import "google/protobuf/empty.proto";
+
 option java_package = "ru.acapella.db.grpc";
 option java_multiple_files = true;
 
@@ -25,6 +27,13 @@ message SqlVariantPb {
 
 message SqlRowPb {
     repeated SqlVariantPb fields = 1;
+}
+
+message SqlDatabaseMetadataPb {
+    required string databaseProductVersion = 1;
+    required string databaseProductName = 2;
+    required int32 jdbcMajorVersion = 3;
+    required int32 jdbcMinorVersion = 4;
 }
 
 message SqlPrepareRequestPb {
@@ -82,7 +91,45 @@ message SqlExecuteResponsePb {
     required uint64 rowsCount = 1;
 }
 
+message SqlTablesMetaRequestPb {
+    optional string catalog = 1;
+    optional string schemaPattern = 2;
+    optional string tableNamePattern = 3;
+    repeated string types = 4;
+}
+
+message SqlTableTypesMetaRequestPb {
+    // todo
+}
+
+message SqlColumnsMetaRequestPb {
+    optional string catalog = 1;
+    optional string schemaPattern = 2;
+    optional string tableNamePattern = 3;
+    optional string columnNamePattern = 4;
+}
+
+message SqlPrimaryKeysMetaRequestPb {
+    // todo
+}
+
+message SqlTableMetaRequestPb {
+    // todo
+}
+
+message SqlResultSetAndMetaPb {
+    required SqlResultSetPb resultSet = 1;
+    repeated SqlColumnMetaPb columns = 2;
+}
+
 service Sql {
+    rpc TablesMetadata(SqlTablesMetaRequestPb) returns (SqlResultSetAndMetaPb);
+    rpc TableTypesMetadata(SqlTableTypesMetaRequestPb) returns (SqlResultSetAndMetaPb);
+    rpc ColumnsMetadata(SqlColumnsMetaRequestPb) returns (SqlResultSetAndMetaPb);
+    rpc PrimaryKeysMetadata(SqlPrimaryKeysMetaRequestPb) returns (SqlResultSetAndMetaPb);
+    rpc IndexesMetadata(SqlTableMetaRequestPb) returns (SqlResultSetAndMetaPb);
+
+    rpc Metadata(google.protobuf.Empty) returns (SqlDatabaseMetadataPb);
     rpc Prepare(SqlPrepareRequestPb) returns (SqlPrepareResponsePb);
     rpc QueryStream(stream SqlQueryMessagePb) returns (stream SqlResultSetPb);
     rpc Query(SqlQueryRequestPb) returns (SqlResultSetPb);
