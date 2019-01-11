@@ -125,7 +125,18 @@ message SqlResultSetAndMetaPb {
     repeated SqlColumnMetaPb columns = 2;
 }
 
+message LoginRequest {
+    required string userName = 1;
+    required string password = 2;
+}
+
+message LoginResponse {
+    required string token = 1;
+}
+
 service Sql {
+    rpc Login (LoginRequest) returns (LoginResponse);
+
     rpc TablesMetadata(SqlTablesMetaRequestPb) returns (SqlResultSetAndMetaPb);
     rpc TableTypesMetadata(SqlTableTypesMetaRequestPb) returns (SqlResultSetAndMetaPb);
     rpc ColumnsMetadata(SqlColumnsMetaRequestPb) returns (SqlResultSetAndMetaPb);
