@@ -37,7 +37,8 @@ message SqlDatabaseMetadataPb {
 }
 
 message SqlPrepareRequestPb {
-    required string sql = 1;
+    optional string database = 1;
+    required string sql = 2;
 }
 
 message SqlParameterMetaPb {
@@ -66,9 +67,10 @@ message SqlQueryMessagePb {
 
 message SqlQueryRequestPb {
     optional bytes transaction = 1;
-    required string sql = 2;
-    optional uint32 fetchSize = 3;
-    repeated SqlVariantPb parameters = 4;
+    optional string database = 2;
+    required string sql = 3;
+    optional uint32 fetchSize = 4;
+    repeated SqlVariantPb parameters = 5;
 }
 
 message SqlQueryFetchPb {
@@ -83,8 +85,9 @@ message SqlResultSetPb {
 
 message SqlExecuteRequestPb {
     optional bytes transaction = 1;
-    required string sql = 2;
-    repeated SqlVariantPb parameters = 3;
+    optional string database = 2;
+    required string sql = 3;
+    repeated SqlVariantPb parameters = 4;
 }
 
 message SqlExecuteResponsePb {
