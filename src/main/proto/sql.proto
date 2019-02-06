@@ -51,6 +51,7 @@ message SqlColumnMetaPb {
     required string name = 3;
     required string label = 4;
     required int32 type = 5;
+    required uint32 displaySize = 6;
 }
 
 message SqlPrepareResponsePb {
@@ -79,8 +80,9 @@ message SqlQueryFetchPb {
 }
 
 message SqlResultSetPb {
-    repeated SqlRowPb rows = 1;
-    required bool hasMore = 2;
+    repeated SqlColumnMetaPb columns = 1;
+    repeated SqlRowPb rows = 2;
+    required bool hasMore = 3;
 }
 
 message SqlExecuteRequestPb {
@@ -91,7 +93,10 @@ message SqlExecuteRequestPb {
 }
 
 message SqlExecuteResponsePb {
-    required uint64 rowsCount = 1;
+    oneof results {
+        uint64 rowsCount = 1;
+        SqlResultSetPb resultSet = 2;
+    }
 }
 
 message SqlTablesMetaRequestPb {
@@ -113,16 +118,13 @@ message SqlColumnsMetaRequestPb {
 }
 
 message SqlPrimaryKeysMetaRequestPb {
-    // todo
+    optional string catalog = 1;
+    optional string schema = 2;
+    optional string table = 3;
 }
 
 message SqlTableMetaRequestPb {
     // todo
-}
-
-message SqlResultSetAndMetaPb {
-    required SqlResultSetPb resultSet = 1;
-    repeated SqlColumnMetaPb columns = 2;
 }
 
 message LoginRequest {
@@ -137,11 +139,11 @@ message LoginResponse {
 service Sql {
     rpc Login (LoginRequest) returns (LoginResponse);
 
-    rpc TablesMetadata(SqlTablesMetaRequestPb) returns (SqlResultSetAndMetaPb);
-    rpc TableTypesMetadata(SqlTableTypesMetaRequestPb) returns (SqlResultSetAndMetaPb);
-    rpc ColumnsMetadata(SqlColumnsMetaRequestPb) returns (SqlResultSetAndMetaPb);
-    rpc PrimaryKeysMetadata(SqlPrimaryKeysMetaRequestPb) returns (SqlResultSetAndMetaPb);
-    rpc IndexesMetadata(SqlTableMetaRequestPb) returns (SqlResultSetAndMetaPb);
+    rpc TablesMetadata(SqlTablesMetaRequestPb) returns (SqlResultSetPb);
+    rpc TableTypesMetadata(SqlTableTypesMetaRequestPb) returns (SqlResultSetPb);
+    rpc ColumnsMetadata(SqlColumnsMetaRequestPb) returns (SqlResultSetPb);
+    rpc PrimaryKeysMetadata(SqlPrimaryKeysMetaRequestPb) returns (SqlResultSetPb);
+    rpc IndexesMetadata(SqlTableMetaRequestPb) returns (SqlResultSetPb);
 
     rpc Metadata(google.protobuf.Empty) returns (SqlDatabaseMetadataPb);
     rpc Prepare(SqlPrepareRequestPb) returns (SqlPrepareResponsePb);
